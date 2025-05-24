@@ -1,2 +1,2 @@
 # 排除大文件上传至仓库，但是保留本地的归档功能
-Maple-Mono/archive/*/*
+*/archive/*/*
