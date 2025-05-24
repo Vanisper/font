@@ -31,7 +31,7 @@ https://github.com/tonsky/FiraCode
 如果是 vscode 或者其他开发编辑器，配置办法详见 [maple-font#usage](https://github.com/subframe7536/maple-font/blob/variable/source/features/README.md#usage) 。
 
 **VSCode settings**：
-``` json
+``` json5
 {
   // ...其他配置
   "editor.fontFamily": "Maple Mono NF CN, Menlo, Consolas, Maple UI, PingFang, 'Microsoft YaHei', monospace",
@@ -92,7 +92,7 @@ https://github.com/tonsky/FiraCode
 以上没有一个完美的方案，但是对于编辑器，以 vscode 为例，可以有比较好的方案。
 
 vscode 配置如下（来源 <https://blog.csdn.net/lzyws739307453/article/details/89823900>）：
-``` json
+``` json5
 {
   // ...其他配置
   "terminal.integrated.profiles.windows": {
