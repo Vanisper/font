@@ -28,6 +28,113 @@ https://github.com/tonsky/FiraCode
 
 操作系统中安装的字体是 ttf 文件格式的，windows 中可选择中任意多个 ttf，然后右键菜单中会出现 **“安装”** 的字样。
 
+如果是 vscode 或者其他开发编辑器，配置办法详见 [maple-font#usage](https://github.com/subframe7536/maple-font/blob/variable/source/features/README.md#usage) 。
+
+**VSCode settings**：
+``` json
+{
+  // ...其他配置
+  "editor.fontFamily": "Maple Mono NF CN, Menlo, Consolas, Maple UI, PingFang, 'Microsoft YaHei', monospace",
+  "editor.fontLigatures": true,
+  // ...其他配置
+}
+```
+
+---
+
+值得注意的是 windows 下的终端环境（powershell & cmd）中文乱码问题：
+
+> 
+> 这个问题出现的原因其实无关字体。当然字体需要支持中文只是很小的一个原因，但是 windows 默认的终端在中文系统中，设置的字体是宋体，默认就不存在这个问题。
+>
+> 仍然出现中文乱码问题，可能是因为文本编码是 utf-8 的。
+>
+> 而 windows 的系统区域（system locale）设置为中文简体的时候，全局默认的字符编码是 GBK 的，需要手动勾选 UTF-8 选项才可以，终端(powershell & cmd)是跟随这个编码的。
+> 
+> 但是由于历史遗留问题，会导致一些非Unicode中文软件乱码（一般是一些老的软件），详见[此处](https://www.zhihu.com/question/54724102/answer/380875686)，以及下面的讨论。
+>
+
+以下是一些解决办法：
+
+1. 对于 powershell，有一些命令是可以通过传入一个 `-Encoding utf8` 的附加参数实现指定输出字符编码
+
+- e.g. `app.log` 是一个含有中文字符的 utf-8 的文本文件
+  ```powershell
+  cat .\all.log -Encoding utf8
+  Get-Content .\all.log -Tail 20 -wait -Encoding utf8
+  ```
+- [方案来源](https://www.zhihu.com/question/54724102/answer/2325552664)
+
+2. 【临时方案】设置 Active code page - `chcp 65001`
+
+- 在 windows 的终端执行 `chcp`，默认的输出为 **936**，即 GBK；执行 `chcp 65001`，即设置为 **UTF-8**。
+  > 这个方案在 cmd 和 powershell 的表现不一致，在 cmd 中表现良好，但比较 dirty，存在作用域污染的问题，在终端中执行 `chcp 65001` 之后，当前 cmd 终端关闭之前的所有中文输出都正常了。
+  >
+  > 但是在 powershell 下，如果是执行的 bat \ cmd 脚本中存在中文字符乱码，必须得在脚本的开始写入 `chcp 65001` 才可以，并且脚本执行结束之后就不起作用了（但是 CodePage 是真真实实修改了的），这应该是 powershell 在执行脚本时有某种作用域隔离的机制。
+  >
+  > 所以这个方案的最佳实践应该是在脚本的开始写入 `chcp 65001`，例如：
+  > ``` cmd
+  > @echo off & chcp 65001
+  > echo test chinese character view  测试中文字符显示
+  > pause
+  > ```
+  >
+- [来源1](https://www.jianshu.com/p/9f349a9ee77a)
+- [来源2](https://blog.csdn.net/runAndRun/article/details/103072938)
+
+3. 针对批处理脚本 —— `.cmd \ .bat`
+
+- 在编写完脚本之后，可以将其用记事本另存为 ANSI 编码，本质上是将文本保存为 GBK 编码。
+- powershell 脚本暂未测试
+
+---
+
+以上没有一个完美的方案，但是对于编辑器，以 vscode 为例，可以有比较好的方案。
+
+vscode 配置如下（来源 <https://blog.csdn.net/lzyws739307453/article/details/89823900>）：
+``` json
+{
+  // ...其他配置
+  "terminal.integrated.profiles.windows": {
+    "Command Prompt": {
+        "path": "C:\\Windows\\System32\\cmd.exe",
+        "args": ["-NoExit", "/K", "chcp 65001"]
+    },
+    "PowerShell": {
+        "source": "PowerShell",
+        "args": ["-NoExit", "/C", "chcp 65001"]
+    }
+  },
+  // 按喜好配置首选终端
+  // "terminal.integrated.defaultProfile.windows": "Command Prompt",
+  // ...其他配置
+}
+```
+
+可以看到，此方案还是通过设置 CodePage，比较疑惑的是，PowerShell 如此设置也能生效。
+
+这是因为上面的写法相当于是在启动终端作用域之前就设置好了 CodePage，而不是在作用域之内设置的，具有极高的优先级。
+>
+> 上面的配置分别相当于在终端中执行以下命令（无所谓 powershell 还是 cmd）:
+> ```powershell
+> powershell -NoExit /C "chcp 65001" # 引号可以不加，下同
+> ```
+> ```cmd
+> cmd -NoExit /K "chcp 65001"
+> ```
+>
+
+但是 powershell 的一些指令还是可能会乱码，如：
+``` powershell
+cat .\all.log # 如果含有中文，此时可能还会有乱码
+```
+此时需要附加 `-Encoding utf8` 参数：
+``` powershell
+cat .\all.log -Encoding utf8 # 解决乱码问题
+```
+
+> 该方案下的类似方案，解决一些编程语言开发时的编辑器终端乱码：https://blog.csdn.net/qq_43700348/article/details/130269369
+
 ---
 
 ### ttf 和 woff 的区别
