@@ -1,0 +1,7 @@
+{
+    // <https://github.com/subframe7536/maple-font/blob/variable/source/features/README_CN.md#使用>
+    // 设置字体
+    "editor.fontFamily": "Maple Mono NF CN, Menlo, Consolas, Maple UI, PingFang, 'Microsoft YaHei', monospace",
+    // 启用连字或者开启 OpenType 特性
+    "editor.fontLigatures": true,
+}
